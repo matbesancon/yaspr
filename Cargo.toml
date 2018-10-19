@@ -1,0 +1,19 @@
+[package]
+name = "yasp"
+version = "0.1.0"
+authors = ["mbesancon <mathieu.besancon@gmail.com>"]
+
+[lib]
+name = "snake_game"
+path = "src/lib.rs"
+
+[[bin]]
+name = "yasp"
+path = "src/main.rs"
+
+[dependencies]
+rand = "0.5"
+piston = "0.37"
+piston2d-graphics = "0.26"
+pistoncore-glutin_window = "0.48"
+piston2d-opengl_graphics = "0.54"
