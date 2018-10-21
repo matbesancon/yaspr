@@ -44,7 +44,7 @@ impl App {
             }
             if let Some(u) = e.update_args() {
                 dt += u.dt;
-                if dt > 0.5 {
+                if dt > 0.2 {
                     let still_playing = self.update(&u);
                     if !still_playing {
                         return self.game.score;
