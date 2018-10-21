@@ -4,20 +4,20 @@ use rand::{thread_rng, Rng, ThreadRng};
 use std::cmp::PartialEq;
 use std::collections::VecDeque;
 
-extern crate piston;
-extern crate graphics;
 extern crate glutin_window;
+extern crate graphics;
 extern crate opengl_graphics;
+extern crate piston;
 
-use piston::window::WindowSettings;
-use piston::event_loop;
-use piston::input::{UpdateArgs,RenderArgs};
 use glutin_window::GlutinWindow as Window;
-use opengl_graphics::{ GlGraphics, OpenGL };
-use graphics::{rectangle, clear, Transformed};
+use graphics::{clear, rectangle, types, Transformed};
+use opengl_graphics::{GlGraphics, OpenGL};
+use piston::event_loop;
+use piston::input::{RenderArgs, UpdateArgs};
+use piston::window::WindowSettings;
 
-pub mod string_rep;
 pub mod game_loop;
+pub mod string_rep;
 
 const PROB_ROCK: u8 = 3; // in a range [0,9] <=> p = 0.4
 const MAX_OBSTACTLE_TIME: f64 = 60.0;
@@ -269,7 +269,7 @@ impl Game {
         }
     }
 
-    pub fn place_apple(&mut self, p : Position) {
+    pub fn place_apple(&mut self, p: Position) {
         let apple = Element {
             pos: p,
             kind: ElementKind::Apple,
