@@ -292,7 +292,7 @@ impl Game {
         }
     }
 
-    pub fn place_apple(&mut self, p : Position) {
+    pub fn place_apple(&mut self, p: Position) {
         let apple = Element {
             pos: p,
             kind: ElementKind::Apple,
