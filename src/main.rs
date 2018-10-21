@@ -1,11 +1,10 @@
 extern crate snake_game;
 
 use snake_game::Game;
-use std::string::ToString;
+use snake_game::game_loop::App;
 
 fn main() {
-    let g = Game::new(100, 100);
-    let _s = g.to_string();
-
-    println!("Hello, world!");
+    let mut a = App::new(20, 20);
+    let score = a.event_loop();
+    println!("Your score: {}", score);
 }

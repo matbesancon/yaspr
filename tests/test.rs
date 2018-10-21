@@ -71,26 +71,19 @@ fn snake_length() {
         let ok = g.next(0.5);
         assert!(ok);
         assert_eq!(g.score as usize, idx * 20);
-        let l : usize = (0..w)
-                .map(|x|
-                    (0..h)
-                    .filter(|y|
-                            g.snake.is_at(Position{x : x as i32, y : *y as i32}))
-                    .count()
-        ).sum();
+        let l: usize = (0..w)
+            .map(|x| {
+                (0..h)
+                    .filter(|y| {
+                        g.snake.is_at(
+                            Position {
+                                x: x as i32,
+                                y: *y as i32,
+                            },
+                            true,
+                        )
+                    }).count()
+            }).sum();
         assert_eq!(l, idx + 1);
     }
-}
-
-#[test]
-fn snake_string() {
-    let (h, w) = (10, 10);
-    let sres = {
-        let g = Game::new(h, w);
-        g.to_string()
-    };
-    let sempty  = "          ";
-    let smid    = "     <    "; 
-    let s = [sempty,sempty,sempty,sempty,sempty,smid,sempty,sempty,sempty,sempty].join("\n");
-    assert_eq!(s, sres.as_str());
 }
