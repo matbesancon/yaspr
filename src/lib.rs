@@ -98,7 +98,7 @@ impl Snake {
         self.positions.pop_back();
     }
 
-    fn is_at(&self, p: Position) -> bool {
+    pub fn is_at(&self, p: Position) -> bool {
         self.positions.iter().any(|p2| p == *p2)
     }
 }
@@ -227,7 +227,8 @@ impl Game {
                         self.spaw_obstacle();
                     }
                     self.map.delete_at(p);
-                    self.spawn_apple();
+                    let p2 = self.spawn_item();
+                    self.place_apple(p2);
                 }
                 ElementKind::Grass => {
                     self.snake.move_neutral(p);
@@ -255,8 +256,7 @@ impl Game {
         }
     }
 
-    fn spawn_apple(&mut self) {
-        let p = self.spawn_item();
+    pub fn place_apple(&mut self, p : Position) {
         let apple = Element {
             pos: p,
             kind: ElementKind::Apple,
