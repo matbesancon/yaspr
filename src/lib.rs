@@ -12,10 +12,9 @@ extern crate piston;
 use glutin_window::GlutinWindow;
 use graphics::{clear, rectangle, types, Transformed};
 use opengl_graphics::{GlGraphics, OpenGL};
-use piston::event_loop::Events;
+use piston::event_loop::{Events, EventSettings};
 use piston::input::{Button, Key, PressEvent, RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
-use piston::window::Window;
-use piston::window::WindowSettings;
+use piston::window::{WindowSettings, Size};
 pub mod game_loop;
 pub mod string_rep;
 
@@ -171,7 +170,7 @@ impl Map {
             (&self)
                 .elements
                 .iter()
-                .filter(|e| e.time_left >= 0.0 && e.kind != ElementKind::Apple)
+                .filter(|e| e.time_left >= 0.0 || e.kind != ElementKind::Apple)
                 .map(|e| *e)
                 .collect()
         };
@@ -205,13 +204,16 @@ impl Game {
     pub fn new(w: usize, h: usize) -> Game {
         let m = Map::new(w, h);
         let s = Snake::new((w / 2) as u16, (h / 2) as u16);
-        Game {
+        let mut g = Game {
             speed: 1.0,
             map: m,
             snake: s,
             score: 0,
             rng: thread_rng(),
-        }
+        };
+        let p = g.spawn_item();
+        g.place_apple(p);
+        g
     }
 
     /// updates direction only of snake is not turning on itself
