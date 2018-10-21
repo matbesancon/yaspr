@@ -78,10 +78,13 @@ fn snake_length() {
             .map(|x| {
                 (0..h)
                     .filter(|y| {
-                        g.snake.is_at(Position {
-                            x: x as i32,
-                            y: *y as i32,
-                        })
+                        g.snake.is_at(
+                            Position {
+                                x: x as i32,
+                                y: *y as i32,
+                            },
+                            true,
+                        )
                     }).count()
             }).sum();
         assert_eq!(l, idx + 1);
