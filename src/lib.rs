@@ -4,6 +4,18 @@ use rand::{thread_rng, Rng, ThreadRng};
 use std::cmp::PartialEq;
 use std::collections::VecDeque;
 
+extern crate glutin_window;
+extern crate graphics;
+extern crate opengl_graphics;
+extern crate piston;
+
+use glutin_window::GlutinWindow;
+use graphics::{clear, rectangle, types, Transformed};
+use opengl_graphics::{GlGraphics, OpenGL};
+use piston::event_loop::{Events, EventSettings};
+use piston::input::{Button, Key, PressEvent, RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
+use piston::window::{WindowSettings, Size};
+pub mod game_loop;
 pub mod string_rep;
 
 const PROB_ROCK: u8 = 3; // in a range [0,9] <=> p = 0.4
@@ -15,9 +27,10 @@ pub enum ElementKind {
     Bush,
     Apple,
     Grass,
+    SnakePart,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Direction {
     Up,
     Down,
@@ -98,8 +111,13 @@ impl Snake {
         self.positions.pop_back();
     }
 
-    fn is_at(&self, p: Position) -> bool {
-        self.positions.iter().any(|p2| p == *p2)
+    pub fn is_at(&self, p: Position, include_last: bool) -> bool {
+        if include_last {
+            self.positions.iter().any(|p2| p == *p2)
+        } else {
+            let l = self.positions.len();
+            self.positions.iter().take(l - 1).any(|p2| p == *p2)
+        }
     }
 }
 
@@ -152,7 +170,7 @@ impl Map {
             (&self)
                 .elements
                 .iter()
-                .filter(|e| e.time_left >= 0.0 && e.kind != ElementKind::Apple)
+                .filter(|e| e.time_left >= 0.0 || e.kind != ElementKind::Apple)
                 .map(|e| *e)
                 .collect()
         };
@@ -186,17 +204,30 @@ impl Game {
     pub fn new(w: usize, h: usize) -> Game {
         let m = Map::new(w, h);
         let s = Snake::new((w / 2) as u16, (h / 2) as u16);
-        Game {
+        let mut g = Game {
             speed: 1.0,
             map: m,
             snake: s,
             score: 0,
             rng: thread_rng(),
-        }
+        };
+        let p = g.spawn_item();
+        g.place_apple(p);
+        g
     }
 
+    /// updates direction only of snake is not turning on itself
     pub fn change_dir(&mut self, d: Direction) {
-        self.snake.direction = d;
+        match (self.snake.direction, d) {
+            (Direction::Left, Direction::Right) => return (),
+            (Direction::Right, Direction::Left) => return (),
+            (Direction::Up, Direction::Down) => return (),
+            (Direction::Down, Direction::Up) => return (),
+            _ => {
+                self.snake.direction = d;
+                return ();
+            }
+        }
     }
 
     fn encountered_element(&self) -> (Position, Option<ElementKind>) {
@@ -204,7 +235,11 @@ impl Game {
             let s = &self.snake;
             s.next_pos()
         };
-        (p, self.map.elem_at_pos(p))
+        if self.snake.is_at(p, false) {
+            (p, Some(ElementKind::SnakePart))
+        } else {
+            (p, self.map.elem_at_pos(p))
+        }
     }
 
     /// updates the game state
@@ -215,6 +250,7 @@ impl Game {
             (_, None) => return false, // game over
             (p, Some(e)) => match e {
                 ElementKind::Rock => return false, // game over
+                ElementKind::SnakePart => return false,
                 ElementKind::Apple => {
                     self.score += 20;
                     self.snake.move_apple(p);
@@ -227,7 +263,8 @@ impl Game {
                         self.spaw_obstacle();
                     }
                     self.map.delete_at(p);
-                    self.spawn_apple();
+                    let p2 = self.spawn_item();
+                    self.place_apple(p2);
                 }
                 ElementKind::Grass => {
                     self.snake.move_neutral(p);
@@ -249,14 +286,13 @@ impl Game {
             let y = r.gen_range(0, self.map.height) as i32;
             let x = r.gen_range(0, self.map.width) as i32;
             let p = Position { x: x, y: y };
-            if !self.snake.is_at(p) {
+            if !self.snake.is_at(p, true) {
                 return p;
             }
         }
     }
 
-    fn spawn_apple(&mut self) {
-        let p = self.spawn_item();
+    pub fn place_apple(&mut self, p: Position) {
         let apple = Element {
             pos: p,
             kind: ElementKind::Apple,
@@ -281,5 +317,56 @@ impl Game {
             kind: ek,
             time_left: tl,
         });
+    }
+}
+
+#[cfg(test)]
+mod self_bite {
+    use super::*;
+
+    #[test]
+    fn snake_self_bite() {
+        let (h, w) = (10, 10);
+        let mut g = Game::new(h, w);
+
+        let s = {
+            let ps = VecDeque::from(vec![
+                Position { x: 3, y: 3 },
+                Position { x: 4, y: 3 },
+                Position { x: 5, y: 3 },
+                Position { x: 6, y: 3 },
+                Position { x: 7, y: 3 },
+            ]);
+            Snake {
+                direction: Direction::Left,
+                positions: ps,
+            }
+        };
+        g.snake = s;
+        let mut ok = g.next(0.5);
+        assert!(ok);
+        for p in [
+            Position { x: 2, y: 3 },
+            Position { x: 3, y: 3 },
+            Position { x: 4, y: 3 },
+            Position { x: 5, y: 3 },
+            Position { x: 6, y: 3 },
+        ]
+            .iter()
+        {
+            let dp = *p;
+            assert!(g.snake.is_at(dp, true))
+        }
+        assert!(!g.snake.is_at(Position { x: 7, y: 3 }, false));
+        g.change_dir(Direction::Down);
+        ok = g.next(0.5);
+        assert!(ok);
+        assert!(g.snake.is_at(Position { x: 2, y: 4 }, true));
+        g.change_dir(Direction::Right);
+        ok = g.next(0.5);
+        assert!(ok);
+        g.change_dir(Direction::Up);
+        ok = g.next(0.5);
+        assert!(!ok);
     }
 }

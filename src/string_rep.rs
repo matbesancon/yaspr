@@ -15,7 +15,7 @@ pub const SNAKE_HEAD_UP_REP: char = '∧';
 pub const SNAKE_HEAD_RIGHT_REP: char = '>';
 pub const SNAKE_HEAD_LEFT_REP: char = '<';
 
-trait Represent {
+trait StringRepresent {
     fn represent(&self) -> Vec<Point>;
 }
 
@@ -28,7 +28,7 @@ fn element_char(elt: &Element) -> char {
     }
 }
 
-impl Represent for Map {
+impl StringRepresent for Map {
     fn represent(&self) -> Vec<Point> {
         self.elements
             .iter()
@@ -37,7 +37,7 @@ impl Represent for Map {
     }
 }
 
-impl Represent for Snake {
+impl StringRepresent for Snake {
     fn represent(&self) -> Vec<Point> {
         let head = match self.direction {
             Direction::Down => SNAKE_HEAD_DOWN_REP,
