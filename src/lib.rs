@@ -4,7 +4,20 @@ use rand::{thread_rng, Rng, ThreadRng};
 use std::cmp::PartialEq;
 use std::collections::VecDeque;
 
+extern crate piston;
+extern crate graphics;
+extern crate glutin_window;
+extern crate opengl_graphics;
+
+use piston::window::WindowSettings;
+use piston::event_loop;
+use piston::input::{UpdateArgs,RenderArgs};
+use glutin_window::GlutinWindow as Window;
+use opengl_graphics::{ GlGraphics, OpenGL };
+use graphics::{rectangle, clear, Transformed};
+
 pub mod string_rep;
+pub mod game_loop;
 
 const PROB_ROCK: u8 = 3; // in a range [0,9] <=> p = 0.4
 const MAX_OBSTACTLE_TIME: f64 = 60.0;
