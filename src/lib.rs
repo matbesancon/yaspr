@@ -329,31 +329,42 @@ mod self_bite {
 
         let s = {
             let ps = VecDeque::from(vec![
-                Position{x : 3, y : 3},
-                Position{x : 4, y : 3},
-                Position{x : 5, y : 3},
-                Position{x : 6, y : 3},
-                Position{x : 7, y : 3},
+                Position { x: 3, y: 3 },
+                Position { x: 4, y: 3 },
+                Position { x: 5, y: 3 },
+                Position { x: 6, y: 3 },
+                Position { x: 7, y: 3 },
             ]);
-            Snake{direction : Direction::Left, positions: ps}
+            Snake {
+                direction: Direction::Left,
+                positions: ps,
+            }
         };
         g.snake = s;
         let mut ok = g.next(0.5);
         assert!(ok);
-        for p in [Position{x : 2, y : 3}, Position{x : 3, y : 3}, Position{x : 4, y : 3}, Position{x : 5, y : 3}, Position{x : 6, y : 3}].iter() {
+        for p in [
+            Position { x: 2, y: 3 },
+            Position { x: 3, y: 3 },
+            Position { x: 4, y: 3 },
+            Position { x: 5, y: 3 },
+            Position { x: 6, y: 3 },
+        ]
+            .iter()
+        {
             let dp = *p;
             assert!(g.snake.is_at(dp, true))
         }
-        assert!(!g.snake.is_at(Position{x : 7, y : 3}, false));
+        assert!(!g.snake.is_at(Position { x: 7, y: 3 }, false));
         g.change_dir(Direction::Down);
         ok = g.next(0.5);
         assert!(ok);
-        assert!(g.snake.is_at(Position{x : 2, y : 4}, true));
+        assert!(g.snake.is_at(Position { x: 2, y: 4 }, true));
         g.change_dir(Direction::Right);
         ok = g.next(0.5);
         assert!(ok);
         g.change_dir(Direction::Up);
         ok = g.next(0.5);
-        assert!(!ok);    
+        assert!(!ok);
     }
 }
