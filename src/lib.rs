@@ -151,7 +151,7 @@ impl Map {
         }
         let item = {
             let elems = &self.elements;
-            elems.into_iter().filter(|e| (*e).pos == p).next()
+            elems.iter().find(|e| (*e).pos == p)
         };
         match item {
             None => Some(ElementKind::Grass),
@@ -162,16 +162,15 @@ impl Map {
     fn update_elements(&mut self, dt: f64) {
         {
             let elems = &mut self.elements;
-            for mut e in elems.into_iter() {
+            for mut e in elems {
                 e.time_left -= dt;
             }
         }
         let filtered: Vec<Element> = {
-            (&self)
-                .elements
+            self.elements
                 .iter()
                 .filter(|e| e.time_left >= 0.0 || e.kind != ElementKind::Apple)
-                .map(|e| *e)
+                .copied()
                 .collect()
         };
         self.elements = filtered;
@@ -201,33 +200,32 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(w: usize, h: usize) -> Game {
-        let m = Map::new(w, h);
-        let s = Snake::new((w / 2) as u16, (h / 2) as u16);
-        let mut g = Game {
+    pub fn new(width: usize, height: usize) -> Game {
+        let map = Map::new(width, height);
+        let snake = Snake::new((width / 2) as u16, (height / 2) as u16);
+        let mut game = Game {
             speed: 1.0,
-            map: m,
-            snake: s,
+            map,
+            snake,
             score: 0,
             rng: thread_rng(),
         };
-        let p = g.spawn_item();
-        g.place_apple(p);
-        g
+        let p = game.spawn_item();
+        game.place_apple(p);
+        game
     }
 
     /// updates direction only of snake is not turning on itself
     pub fn change_dir(&mut self, d: Direction) {
         match (self.snake.direction, d) {
-            (Direction::Left, Direction::Right) => return (),
-            (Direction::Right, Direction::Left) => return (),
-            (Direction::Up, Direction::Down) => return (),
-            (Direction::Down, Direction::Up) => return (),
+            (Direction::Left, Direction::Right) => (),
+            (Direction::Right, Direction::Left) => (),
+            (Direction::Up, Direction::Down) => (),
+            (Direction::Down, Direction::Up) => (),
             _ => {
                 self.snake.direction = d;
-                return ();
             }
-        }
+        };
     }
 
     fn encountered_element(&self) -> (Position, Option<ElementKind>) {
@@ -277,7 +275,7 @@ impl Game {
             },
         }
         self.map.update_elements(dt);
-        return true;
+        true
     }
 
     fn spawn_item(&mut self) -> Position {
@@ -285,7 +283,7 @@ impl Game {
         loop {
             let y = r.gen_range(0, self.map.height) as i32;
             let x = r.gen_range(0, self.map.width) as i32;
-            let p = Position { x: x, y: y };
+            let p = Position { x, y };
             if !self.snake.is_at(p, true) {
                 return p;
             }

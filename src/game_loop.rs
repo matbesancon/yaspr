@@ -32,7 +32,7 @@ impl App {
         App {
             gl: GlGraphics::new(ogl),
             game: g,
-            window: window,
+            window,
             square_dim: 20,
         }
     }
@@ -48,7 +48,7 @@ impl App {
             if let Some(u) = e.update_args() {
                 dt += u.dt;
                 if dt > 0.2 {
-                    let still_playing = self.update(&u);
+                    let still_playing = self.update(u);
                     if !still_playing {
                         return self.game.score;
                     }
@@ -62,7 +62,7 @@ impl App {
                 }
             }
         }
-        return self.game.score;
+        self.game.score
     }
 
     pub fn render(&mut self, args: &RenderArgs) {
@@ -90,7 +90,7 @@ impl App {
         });
     }
 
-    pub fn update(&mut self, args: &UpdateArgs) -> bool {
+    pub fn update(&mut self, args: UpdateArgs) -> bool {
         self.game.next(args.dt)
     }
 
@@ -104,7 +104,7 @@ impl App {
             Button::Keyboard(Key::Escape) => return false,
             _ => (),
         };
-        return true;
+        true
     }
 }
 
