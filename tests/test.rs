@@ -85,8 +85,10 @@ fn snake_length() {
                             },
                             true,
                         )
-                    }).count()
-            }).sum();
+                    })
+                    .count()
+            })
+            .sum();
         assert_eq!(l, idx + 1);
     }
 }

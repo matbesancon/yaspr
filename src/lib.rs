@@ -12,9 +12,9 @@ extern crate piston;
 use glutin_window::GlutinWindow;
 use graphics::{clear, rectangle, types, Transformed};
 use opengl_graphics::{GlGraphics, OpenGL};
-use piston::event_loop::{Events, EventSettings};
+use piston::event_loop::{EventSettings, Events};
 use piston::input::{Button, Key, PressEvent, RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
-use piston::window::{WindowSettings, Size};
+use piston::window::{Size, WindowSettings};
 pub mod game_loop;
 pub mod string_rep;
 
@@ -352,7 +352,7 @@ mod self_bite {
             Position { x: 5, y: 3 },
             Position { x: 6, y: 3 },
         ]
-            .iter()
+        .iter()
         {
             let dp = *p;
             assert!(g.snake.is_at(dp, true))

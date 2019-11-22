@@ -8,10 +8,10 @@ const GREY: types::Color = [0.9, 0.9, 0.9, 0.9];
 
 /// Main App with graphic engine and game state
 pub struct App {
-    gl: GlGraphics,         // OpenGL drawing backend.
-    square_dim: u32, // width and height of each unit pixel
-    game: Game,             // Game state
-    window: GlutinWindow,   // window manager
+    gl: GlGraphics,       // OpenGL drawing backend.
+    square_dim: u32,      // width and height of each unit pixel
+    game: Game,           // Game state
+    window: GlutinWindow, // window manager
 }
 
 impl App {
@@ -19,7 +19,10 @@ impl App {
         let ogl = OpenGL::V3_2;
         let window: GlutinWindow = WindowSettings::new(
             "YASPR",
-            Size{width : (w * 20) as u32,height : (h * 20) as u32}
+            Size {
+                width: (w * 20) as u32,
+                height: (h * 20) as u32,
+            },
         )
         .opengl(ogl)
         .exit_on_esc(true)
@@ -71,16 +74,16 @@ impl App {
         self.gl.draw(args.viewport(), |c, gl| {
             clear(LIGHT_GREEN, gl);
             for p in snake_pos {
-                let transform = c.transform.trans(
-                    p.x as f64 * sd as f64, p.y as f64 * sd as f64
-                );
+                let transform = c
+                    .transform
+                    .trans(p.x as f64 * sd as f64, p.y as f64 * sd as f64);
                 let col = color(ElementKind::SnakePart);
                 rectangle(col, square, transform, gl);
             }
             for elt in map_pos {
-                let transform = c.transform.trans(
-                    elt.pos.x as f64 * sd as f64, elt.pos.y as f64 * sd as f64
-                );
+                let transform = c
+                    .transform
+                    .trans(elt.pos.x as f64 * sd as f64, elt.pos.y as f64 * sd as f64);
                 let col = color(elt.kind);
                 rectangle(col, square, transform, gl);
             }

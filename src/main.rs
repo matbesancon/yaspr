@@ -1,6 +1,5 @@
 extern crate snake_game;
 
-use snake_game::Game;
 use snake_game::game_loop::App;
 
 fn main() {
